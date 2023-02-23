@@ -18,12 +18,12 @@ const actions = {
       state.dataLoading = true
     })
   },
-  loadSRMetrics({ commit }, ) {
+  loadSRMetrics({ state, commit }, ) {
     let st = new Date();
-    console.log('1111')
     dataService.loadSRMetrics({ commit }, resp => {
       console.log("fetchRoute use time: ", new Date() - st)
-      console.log('fff', resp)
+      state.imageMetrics = resp
+      console.log('metrics', state.imageMetrics)
     })
   }
 }

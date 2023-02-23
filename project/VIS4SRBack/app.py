@@ -39,7 +39,7 @@ def fetch_sr_metrics():
     label_df = pd.read_csv(os.path.join(PROCESS_DATA_FOLDER,  'ImageNet_label.csv'))
     metric_df = pd.read_csv(os.path.join(PROCESS_DATA_FOLDER, 'metrics.csv'))
     merge_df = metric_df.merge(label_df, on='imnames')
-    return jsonify(merge_df.to_dict('records')[:100]), 200, {"Content-Type": "application/json"}
+    return jsonify(merge_df.to_dict('records')[:10000]), 200, {"Content-Type": "application/json"}
 
 
 @app.route('/api/SR/loadSRModels/', methods=['POST'])
