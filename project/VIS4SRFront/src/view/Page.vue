@@ -31,6 +31,8 @@ export default {
     mounted(){
         this.$store.dispatch("SR/loadSRModels", { x: 1 });
         this.$store.dispatch("SR/loadSRMetrics");
+        this.$store.dispatch("SR/loadMetricNames")
+        this.$store.dispatch("SR/loadDatasetIds")
         // this.$store.dispatch("test/fetchAllData");
     },
     computed: {

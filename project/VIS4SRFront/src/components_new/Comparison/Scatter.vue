@@ -50,7 +50,7 @@
 
 
 import * as d3 from 'd3'
-import CircleSim from "@/components/Comparison/CircleSim";
+import CircleSim from "@/components_new/Comparison/CircleSim";
 
 export default {
     name: "Scatter",
