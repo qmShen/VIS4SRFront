@@ -67,7 +67,7 @@
 </template>
 
 <script>
-import Scatter from "@/components/Comparison/Scatter";
+import Scatter from "@/components_new/Comparison/Scatter";
 
 import * as d3 from "d3"
 

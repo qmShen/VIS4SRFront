@@ -34,28 +34,52 @@ data_configs = [
 ]
 DATA_PATH = os.path.abspath(os.path.join(FILE_ABS_PATH, 'data'))
 
+def generate_nested_dict_from_df(df):
+    re_names = []
+    for column in df.columns:
+        if column in  ['imnames', 'label']:
+            re_names.append((column, column))
+        else:
+            re_names.append(tuple(column.split('%')))
+    df.columns = pd.MultiIndex.from_tuples(re_names)
+    l = df.to_dict('records')
+    two_level_array = []
+    for record in l:
+        _dict = {}
+        for (k1, k2) in record:
+            if k1 == k2:
+                _dict[k1] = record[(k1, k2)]
+            else:
+                if k1 not in _dict:
+                    _dict[k1] = {}
+                _dict[k1][k2] = record[(k1, k2)]
+        two_level_array.append(_dict)
+    return two_level_array
+
 @app.route('/api/SR/loadSRMetrics/', methods=['POST'])
 def fetch_sr_metrics():
     label_df = pd.read_csv(os.path.join(PROCESS_DATA_FOLDER,  'ImageNet_label.csv'))
     metric_df = pd.read_csv(os.path.join(PROCESS_DATA_FOLDER, 'metrics.csv'))
     merge_df = metric_df.merge(label_df, on='imnames')
-    return jsonify(merge_df.to_dict('records')[:10000]), 200, {"Content-Type": "application/json"}
+    nested_array = generate_nested_dict_from_df(merge_df.head(5000))
+    return jsonify(nested_array), 200, {"Content-Type": "application/json"}
 
 
 @app.route('/api/SR/loadSRModels/', methods=['POST'])
 def load_sr_models():
     return jsonify(['vdsr', 'srResNet', 'hcflow']), 200, {"Content-Type": "application/json"}
 
+@app.route('/api/SR/loadMetricNames/', methods=['POST'])
+def load_metric_names():
+    return jsonify(['lpips', 'ssim', 'psnr']), 200, {"Content-Type": "application/json"}
 
-
-# @app.route('/api/SR/loadClassificationModels/', methods=['POST'])
-# def load_classification_models():
-#     return ['googlenet', 'alexnet', 'vgg19', 'resnet50', 'swin_b', 'convnext_large']
+@app.route('/api/SR/loadClassificationModels/', methods=['POST'])
+def load_classification_models():
+    return ['googlenet', 'alexnet', 'vgg19', 'resnet50', 'swin_b', 'convnext_large']
 #
-# @app.route('/api/SR/datasetIds/', methods=['POST'])
-# def load_dataset_ids():
-#     return ['bicubic_224', 'vdsr', 'srResNet', 'hcflow', 'crop_raw']
-
+@app.route('/api/SR/loadDatasetIds/', methods=['POST'])
+def load_dataset_ids():
+    return jsonify(['bicubic_224', 'vdsr', 'srResNet', 'hcflow']), 200, {"Content-Type": "application/json"}
 
 
 def load_model_performance():
