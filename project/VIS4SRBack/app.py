@@ -71,7 +71,7 @@ def load_sr_models():
 
 @app.route('/api/SR/loadMetricNames/', methods=['POST'])
 def load_metric_names():
-    return jsonify(['lpips', 'ssim', 'psnr']), 200, {"Content-Type": "application/json"}
+    return jsonify(['lpips', 'ssims', 'psnrs']), 200, {"Content-Type": "application/json"}
 
 @app.route('/api/SR/loadClassificationModels/', methods=['POST'])
 def load_classification_models():
