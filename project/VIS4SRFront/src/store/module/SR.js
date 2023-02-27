@@ -5,7 +5,8 @@ const state = () => ({
   dataLoading: false,
   imageMetrics: null,
   metricNames: [],
-  datasetIds: []
+  datasetIds: [],
+  classificationIds: []
 })
 
 // getters
@@ -43,6 +44,14 @@ const actions = {
       console.log("fetchRoute use time: ", new Date() - st)
       console.log('load datasetids name', resp)
       state.datasetIds = resp
+    })
+  },
+  loadClassificationIds({state, commit}){
+    let st = new Date();
+    dataService.loadClassificationIds({commit}, resp =>{
+      console.log("fetchRoute use time: ", new Date() - st)
+      console.log('load datasetids name', resp)
+      state.classificationIds = resp
     })
   }
 }

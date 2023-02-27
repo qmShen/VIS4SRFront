@@ -1,5 +1,47 @@
 <template>
     <div class="hello" style="height: 100%;">
+
+        <el-row :gutter="20">
+            <el-col :span="4">
+                <div class="grid-content bg-purple">First Layer Attributes:</div>
+                <el-select size="mini" v-model="selectedFirstAttributes"
+                           multiple placeholder="Select">
+                    <el-option
+                            v-for="item in datasetIds"
+                            :key="item"
+                            :label="item"
+                            :value="item">
+                    </el-option>
+                </el-select>
+            </el-col>
+            <el-col :span="4">
+                <div class="grid-content bg-purple">Second Layer Attribute:</div>
+
+                <el-select size="mini" v-model="selectedMetrics"
+                           multiple placeholder="Select">
+                    <el-option
+                            v-for="item in metricNames"
+                            :key="item"
+                            :label="item"
+                            :value="item">
+                    </el-option>
+                </el-select>
+            </el-col>
+
+            <el-col :span="4">
+                <div class="grid-content bg-purple">Second Layer Attribute:</div>
+
+                <el-select size="mini" v-model="selectedClassifications"
+                           multiple placeholder="Select">
+                    <el-option
+                            v-for="item in metricNames"
+                            :key="item"
+                            :label="item"
+                            :value="item">
+                    </el-option>
+                </el-select>
+            </el-col>
+        </el-row>
         <svg width="3000" height="1000" style="">
             <g transform="translate(50, 100)">
                 <g>
@@ -17,12 +59,6 @@
                              :datasetIdToColor="visConfig.datasetIdToColor"
                     ></SliceCN>
                 </g>
-                <!--                <SliceCN v-for="(slice, index) in selectGroups" :key="index" :slice="slice"-->
-                <!--                         :transform="'translate('+[0, visConfig.unitHeight * index]+')'"-->
-                <!--                         :sliceConfig="visConfig"-->
-                <!--                         :datasetIds="datasetIds"-->
-                <!--                         :metricNames="metricNames"-->
-                <!--                ></SliceCN>-->
             </g>
         </svg>
     </div>
@@ -55,7 +91,15 @@ export default {
                 totalLength: 1200,
                 unitHeight: 50,
                 datasetIdToColor: null
-            }
+            },
+
+            allFirstAttributes:[
+
+            ],
+            selectedFirstAttributes: [],
+
+            selectedMetrics:[],
+            selectedClassifications:[]
         }
     },
     methods:{
@@ -132,15 +176,20 @@ export default {
             //     TODO: here to config
         },
         datasetIds(){
+            this.selectedFirstAttributes = [...this.datasetIds]
             this.visConfig.datasetIdToColor = d3.scaleOrdinal().domain(this.datasetIds).range(d3.schemeCategory10)
         },
+        metricNames(){
+            this.selectedMetrics = [...this.metricNames]
+        }
 
     },
     computed:{
         ...mapState("SR", {
             imageMetrics: (state) => state.imageMetrics,
             metricNames: (state) => state.metricNames,
-            datasetIds: (state) => state.datasetIds
+            datasetIds: (state) => state.datasetIds,
+            classificationIds: (state) => state.classificationIds
         }),
     }
 

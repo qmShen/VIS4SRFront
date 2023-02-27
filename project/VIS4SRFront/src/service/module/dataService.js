@@ -42,6 +42,16 @@ export function loadSRDatasetIds(param, callback) {
     })
 }
 
+export function loadClassificationIds(param, callback) {
+  const url=`${TEST_URL_PREFIX}/loadClassificationModels/`;
+  axios.post(url, param)
+    .then(response =>{
+      callback(response.data)
+    }, errResponse => {
+      console.log(errResponse)
+    })
+}
+
 //
 // export function loadImage(param, callback) {
 //   const url=`${TEST_URL_PREFIX}/loadImageWithId/`;
