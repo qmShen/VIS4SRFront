@@ -1,51 +1,32 @@
 <template>
     <g>
-        <circle fill="red" r="3"></circle>
-        <rect :height="sliceConfig.unitHeight" :width="sliceConfig.totalLength"
-              :fill="'grey'" opacity="0.3"
-        ></rect>
-
-        <TextCN
-            :type="'text'"
-            :width="sliceConfig.unitHeight" :height="sliceConfig.unitHeight" :transform="'translate(' + [0,0] + ')'"
-            :text="slice[0]"
-        ></TextCN>
-
-        <TextCN :type="'text'"
-                :width="sliceConfig.unitHeight" :height="sliceConfig.unitHeight" :transform="'translate(' + [ sliceConfig.unitHeight,0] + ')'"
-                :text="slice[1].length"
-        ></TextCN>
-
-
-        <MetricCN v-for="(metricName, index) in metricNames" :key="metricName"
-                  :width="100" :height="sliceConfig.unitHeight" :transform="'translate(' + [ sliceConfig.unitHeight * 2 + index * 100,0] + ')'"
-                  :slice="slice" :datasetIds="datasetIds" :datasetId2Color="sliceConfig.datasetIdToColor"
-                  :metricName="metricName"
-        ></MetricCN>
-
-
+<!--        <rect :height="height" :width="800"-->
+<!--              :fill="'grey'" opacity="0.3"-->
+<!--        ></rect>-->
+        <ColumnCN v-for="(sliceCF, index) in sliceCFs" :key="index" :sliceCF="sliceCF" :slice='slice'
+                  :datasetIdToColor="datasetIdToColor"
+                  :datasetIds="datasetIds"
+                  :transform="'translate('+ [sliceCF.x, 0] +')'"
+        ></ColumnCN>
     </g>
 </template>
 
 <script>
 
-import TextCN from "@/components/MatrixView/TextCN.vue";
-import MetricCN from "@/components/MatrixView/MetricCN.vue";
-
+import ColumnCN from "@/components/MatrixView/ColumnCN";
 export default {
     name: "SliceCN",
     components: {
-        MetricCN,
-        TextCN
+        ColumnCN
+
     },
     data(){
         return{
 
         }
     },
-    props:['sliceConfig', 'slice', 'datasetIds', 'metricNames'],
+    props:['slice', 'sliceCFs','height', 'datasetIds', 'metricNames', 'datasetIdToColor'],
     mounted(){
-
     },
     computed:{
 

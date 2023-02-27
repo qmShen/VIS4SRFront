@@ -4,7 +4,6 @@
          :element-loading-text="loadingText"
          element-loading-background="rgba(0, 0, 0, 0.8)"
     >
-
         <Main v-if="dataLoading"
         ></Main>
     </div>
