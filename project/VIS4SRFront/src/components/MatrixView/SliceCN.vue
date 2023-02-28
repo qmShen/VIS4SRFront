@@ -25,7 +25,7 @@ export default {
 
         }
     },
-    props:['slice', 'sliceCFs','height', 'datasetIds', 'metricNames', 'datasetIdToColor'],
+    props:['slice', 'sliceCFs','height', 'datasetIds',  'datasetIdToColor'],
     mounted(){
     },
     computed:{

@@ -56,19 +56,35 @@
             </el-col>
         </el-row>
         <svg width="3000" height="1000" style="">
-            <g transform="translate(50, 100)">
+            <g transform="translate(50, 100)" class="metricGroup">
                 <g>
-                    <SliceTitle v-for="(sliceCF, index) in sliceCNs" :key="index" :sliceCF="sliceCF"
+                    <SliceTitle v-for="(sliceCF, index) in sliceCFs" :key="index" :sliceCF="sliceCF"
                                 :transform="'translate('+ [sliceCF.x, 0] +')'"
                     ></SliceTitle>
                 </g>
                 <g v-if="visConfig.datasetIdToColor!=null" >
                     <SliceCN v-for="(slice, index) in selectGroups" :key="index" :slice="slice"
-                             :sliceCFs="sliceCNs"
+                             :sliceCFs="sliceCFs"
                              :height="visConfig.unitHeight"
                              :transform="'translate('+[0, visConfig.unitHeight * index]+')'"
                              :datasetIds="datasetIds"
-                             :metricNames="metricNames"
+                             :datasetIdToColor="visConfig.datasetIdToColor"
+                    ></SliceCN>
+                </g>
+            </g>
+
+            <g transform="translate(500, 100)" class="metricGroup">
+                <g>
+                    <SliceTitle v-for="(sliceCF, index) in g2SliceCFs" :key="index" :sliceCF="sliceCF"
+                                :transform="'translate('+ [sliceCF.x, 0] +')'"
+                    ></SliceTitle>
+                </g>
+                <g v-if="visConfig.datasetIdToColor!=null" >
+                    <SliceCN v-for="(slice, index) in selectClassificationGroups" :key="index" :slice="slice"
+                             :sliceCFs="g2SliceCFs"
+                             :height="visConfig.unitHeight"
+                             :transform="'translate('+[0, visConfig.unitHeight * index]+')'"
+                             :datasetIds="datasetIds"
                              :datasetIdToColor="visConfig.datasetIdToColor"
                     ></SliceCN>
                 </g>
@@ -83,21 +99,17 @@ import {mapState} from "vuex";
 import * as d3 from "d3"
 import SliceCN from "@/components/MatrixView/SliceCN.vue";
 import SliceTitle from "@/components/MatrixView/SliceTitle";
+import {ColumnConfig, ColumnFactory} from "@/lib/ColumnGenerator.js"
+
 
 export default {
     name: 'MainComponent',
-    props: [
-
-    ],
-    components: {
-        SliceTitle,
-        SliceCN
-
-    },
+    props: [],
+    components: {SliceTitle,SliceCN},
     data(){
         return {
             selectGroups: [],
-            sliceCNs: [],
+            sliceCFs: [],
             visConfig:{
                 totalHeight: 800,
                 totalLength: 1200,
@@ -108,7 +120,10 @@ export default {
             selectedFirstAttributes: [],
             selectedMetrics:[],
 
-            selectedClassifications:['vgg19']
+            selectedClassifications:['vgg19'],
+
+            g2SliceCFs: [],
+            selectClassificationGroups: []
         }
     },
     methods:{
@@ -130,48 +145,7 @@ export default {
         imageMetrics(val){
             let results = d3.groups(val, d=>d.label)
             this.selectGroups = results.splice(0, 10)
-            class ColumnConfig{
-                constructor(columnType, title, x, width, height){
-                    this.columnType = columnType;
-                    this.title = title;
-                    this.width = width;
-                    this.height = height;
-                    this.x = x
-                }
-                setProcessFunc(func){
-                    this.setFunc = func
-                }
 
-                setKeyAttributes(attr){
-                    this.keyAttr = attr
-                }
-
-                returnAnalysisContext(slice){
-                    //Text of distribution
-                    if(this.columnType == 'text'){
-                        return this.setFunc(slice)
-                    }else if (this.columnType == 'distribution'){
-                        return ['datasetIds', 'metricNames']
-                    }
-                }
-            }
-
-            class ColumnFactory{
-                static returnTextColumn(columnType, title, x, width, height, textFunc){
-                    let conf = new ColumnConfig('text', title, x, width, height)
-                    conf.setProcessFunc(textFunc)
-                    return conf
-                }
-
-                static returnDisColumn(columnTyle, title, x, width, height, keyAttr){
-                    let conf = new ColumnConfig('distribution', title, x, width, height)
-                    conf.setKeyAttributes(keyAttr)
-                    return conf
-                }
-
-                static returnText
-
-            }
 
             let col = new ColumnConfig('text', 100, 100)
             col.setProcessFunc(function(slice){
@@ -185,11 +159,35 @@ export default {
                 ColumnFactory.returnDisColumn('distribution', 'psnr',uh*2 + 100,100, uh, 'psnrs'),
                 ColumnFactory.returnDisColumn('distribution', 'ssims',uh*2 + 200,100, uh, 'ssims'),
             ]
-            this.sliceCNs=configs
+            this.sliceCFs=configs
             //     TODO: here to config
         },
         imageClassification(val){
             console.log('classification results', val)
+
+            let results = d3.groups(val, d=>d.label)
+            this.selectClassificationGroups = results.splice(0, 10)
+            let calcAcc = function(datasetIds, dataGroup){
+                let rc = {}
+                let dataList = dataGroup[1]
+                console.log('dataList ', dataList)
+                datasetIds.forEach(datasetId=>{
+                    let count = d3.sum(dataList, d=>d[datasetId].top1_id == d.label? 1 : 0)
+                    let total = dataList.length
+                    rc[datasetId] = count / total
+                })
+                return rc
+            }
+            // let attrAcc = []
+            // this.selectClassificationGroups.forEach(group=>{
+            //     let acc = calcAcc(this.selectedFirstAttributes, group)
+            //     attrAcc.push(acc)
+            // })
+            // console.log(attrAcc)
+            let uh = this.visConfig.unitHeight
+            let labelCol = ColumnFactory.returnTextColumn('text', 'label', 0, uh, uh, d=>d[0])
+            let col = ColumnFactory.returnValuesColumn('values', 'Accuracy', uh, 50, 50, calcAcc)
+            this.g2SliceCFs = [labelCol, col]
         },
         datasetIds(){
             this.selectedFirstAttributes = [...this.datasetIds]
