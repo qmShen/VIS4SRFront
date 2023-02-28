@@ -144,7 +144,7 @@ export default {
     watch:{
         imageMetrics(val){
             let results = d3.groups(val, d=>d.label)
-            this.selectGroups = results.splice(0, 10)
+            this.selectGroups = results.splice(0, 20)
 
 
             let col = new ColumnConfig('text', 100, 100)
@@ -166,7 +166,7 @@ export default {
             console.log('classification results', val)
 
             let results = d3.groups(val, d=>d.label)
-            this.selectClassificationGroups = results.splice(0, 10)
+            this.selectClassificationGroups = results.splice(0, 20)
             let calcAcc = function(datasetIds, dataGroup){
                 let rc = {}
                 let dataList = dataGroup[1]
@@ -178,16 +178,13 @@ export default {
                 })
                 return rc
             }
-            // let attrAcc = []
-            // this.selectClassificationGroups.forEach(group=>{
-            //     let acc = calcAcc(this.selectedFirstAttributes, group)
-            //     attrAcc.push(acc)
-            // })
-            // console.log(attrAcc)
+
             let uh = this.visConfig.unitHeight
             let labelCol = ColumnFactory.returnTextColumn('text', 'label', 0, uh, uh, d=>d[0])
-            let col = ColumnFactory.returnValuesColumn('values', 'Accuracy', uh, 50, 50, calcAcc)
-            this.g2SliceCFs = [labelCol, col]
+            let col = ColumnFactory.returnValuesColumn('values', 'Accuracy', uh, 100, 50, calcAcc)
+            let confCol = ColumnFactory.returnDisColumn('distribution', 'Confidence', 150,100, uh, 'top1_prob')
+
+            this.g2SliceCFs = [labelCol, col, confCol]
         },
         datasetIds(){
             this.selectedFirstAttributes = [...this.datasetIds]

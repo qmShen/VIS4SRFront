@@ -7,11 +7,20 @@
         </g>
         <g v-if="sliceCF.columnType=='distribution'">
             <g >
-                <MetricCN :width="sliceCF.width" :height="sliceCF.height"
+                <DistributionCN :width="sliceCF.width" :height="sliceCF.height"
                           :firstLayerAttrs="datasetIds" :metricName="sliceCF.keyAttr"
                           :datasetIdToColor="datasetIdToColor"
                           :slice="slice"
-                ></MetricCN>
+                ></DistributionCN>
+            </g>
+        </g>
+        <g v-if="sliceCF.columnType=='values'">
+            <g >
+                <ValuesCN :width="sliceCF.width" :height="sliceCF.height"
+                          :firstLayerAttrs="datasetIds"
+                          :datasetIdToColor="datasetIdToColor"
+                          :data="sliceCF.setFunc(datasetIds, slice)"
+                ></ValuesCN>
             </g>
         </g>
 
@@ -21,11 +30,13 @@
 <script>
 
 import TextCN from "@/components/MatrixView/TextCN";
-import MetricCN from "@/components/MatrixView/MetricCN";
+import DistributionCN from "@/components/MatrixView/DistributionCN.vue";
+import ValuesCN from "@/components/MatrixView/ValuesCN.vue";
 export default {
     name: "ColumnCN",
     components: {
-        TextCN, MetricCN
+        ValuesCN,
+        TextCN, DistributionCN
     },
     props:['sliceCF', 'slice', 'datasetIds', 'metricNames', 'datasetIdToColor'],
     mounted(){
