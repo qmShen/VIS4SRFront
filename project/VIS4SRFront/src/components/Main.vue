@@ -30,7 +30,6 @@
 
             <el-col :span="4">
                 <div class="grid-content bg-purple">Second Layer Attribute:</div>
-
                 <el-select size="mini" v-model="selectedClassifications"
                            multiple placeholder="Select">
                     <el-option
@@ -40,6 +39,20 @@
                             :value="item">
                     </el-option>
                 </el-select>
+            </el-col>
+
+            <el-col :span="4">
+                <div class="grid-content bg-purple">Fetch classification results</div>
+                <el-select size="mini" v-model="selectedClassifications"
+                           multiple placeholder="Select">
+                    <el-option
+                            v-for="item in classificationIds"
+                            :key="item"
+                            :label="item"
+                            :value="item">
+                    </el-option>
+                </el-select>
+                <el-button size="mini" @click="joinSubmission"> submit</el-button>
             </el-col>
         </el-row>
         <svg width="3000" height="1000" style="">
@@ -84,7 +97,6 @@ export default {
     data(){
         return {
             selectGroups: [],
-
             sliceCNs: [],
             visConfig:{
                 totalHeight: 800,
@@ -92,26 +104,32 @@ export default {
                 unitHeight: 50,
                 datasetIdToColor: null
             },
-
-            allFirstAttributes:[
-
-            ],
+            allFirstAttributes:[],
             selectedFirstAttributes: [],
-
             selectedMetrics:[],
-            selectedClassifications:[]
+
+            selectedClassifications:['vgg19']
         }
     },
     methods:{
+        joinSubmission(){
+            // firstAttributes: datasetId/SR
+            //
+            console.log('join submission',
+                this.selectedClassifications, this.selectedFirstAttributes)
+
+            this.$store.dispatch("SR/jointlyAnalysis",
+                {
+                    'classificationIds': this.selectedClassifications,
+                    'firstAttributes': this.selectedFirstAttributes
+                });
+        }
     },
-    mounted(){
-        console.log('metrics')
-    },
+    mounted(){},
     watch:{
         imageMetrics(val){
             let results = d3.groups(val, d=>d.label)
             this.selectGroups = results.splice(0, 10)
-
             class ColumnConfig{
                 constructor(columnType, title, x, width, height){
                     this.columnType = columnType;
@@ -159,10 +177,6 @@ export default {
             col.setProcessFunc(function(slice){
                 return slice[0]
             })
-            let col2 = new ColumnConfig('distribution', 100, 100)
-            let columnNames = col2.returnAnalysisContext()
-            console.log('this[columnNames[0]]', this[columnNames[0]], this[columnNames[1]])
-            console.log('config ', this.visConfig)
             let uh = this.visConfig.unitHeight
             let configs = [
                 ColumnFactory.returnTextColumn('text', 'label', 0, uh, uh, d=>d[0]),
@@ -172,8 +186,10 @@ export default {
                 ColumnFactory.returnDisColumn('distribution', 'ssims',uh*2 + 200,100, uh, 'ssims'),
             ]
             this.sliceCNs=configs
-            console.log('config', configs)
             //     TODO: here to config
+        },
+        imageClassification(val){
+            console.log('classification results', val)
         },
         datasetIds(){
             this.selectedFirstAttributes = [...this.datasetIds]
@@ -189,7 +205,8 @@ export default {
             imageMetrics: (state) => state.imageMetrics,
             metricNames: (state) => state.metricNames,
             datasetIds: (state) => state.datasetIds,
-            classificationIds: (state) => state.classificationIds
+            classificationIds: (state) => state.classificationIds,
+            imageClassification: (state) => state.imageClassification
         }),
     }
 

@@ -24,7 +24,7 @@ BICUBIC_FOLDER = os.path.join(RESULT_FOLDER, '50000_DS-bicubic_N_224')
 VDSR_FOLDER = os.path.join(RESULT_FOLDER, '50000_DS-bicubic_VDSR-1_224')
 SRResnet_FOLDER = os.path.join(RESULT_FOLDER, '50000_DS-bicubic_SRResNet-4_224')
 HCFlow_FOLDER = os.path.join(RESULT_FOLDER, '50000_DS-bicubic_HCFlow-4_224')
-
+N = 5000
 data_configs = [
     {'model': 'bicubic', 'folder': BICUBIC_FOLDER},
     {'model': 'vdsr', 'folder': VDSR_FOLDER},
@@ -61,7 +61,7 @@ def fetch_sr_metrics():
     label_df = pd.read_csv(os.path.join(PROCESS_DATA_FOLDER,  'ImageNet_label.csv'))
     metric_df = pd.read_csv(os.path.join(PROCESS_DATA_FOLDER, 'metrics.csv'))
     merge_df = metric_df.merge(label_df, on='imnames')
-    nested_array = generate_nested_dict_from_df(merge_df.head(5000))
+    nested_array = generate_nested_dict_from_df(merge_df.head(N))
     return jsonify(nested_array), 200, {"Content-Type": "application/json"}
 
 
@@ -75,13 +75,63 @@ def load_metric_names():
 
 @app.route('/api/SR/loadClassificationModels/', methods=['POST'])
 def load_classification_models():
-    return ['googlenet', 'alexnet', 'vgg19', 'resnet50', 'swin_b', 'convnext_large']
+    return jsonify(['googlenet', 'alexnet', 'vgg19', 'resnet50', 'swin_b', 'convnext_large']), 200, {"Content-Type": "application/json"}
 #
 @app.route('/api/SR/loadDatasetIds/', methods=['POST'])
 def load_dataset_ids():
     return jsonify(['bicubic_224', 'vdsr', 'srResNet', 'hcflow']), 200, {"Content-Type": "application/json"}
 
 
+def process_classification_results(dataset_ids, classification_id):
+    all_df = None
+    label_df = pd.read_csv(os.path.join(PROCESS_DATA_FOLDER, 'ImageNet_label.csv')).head(N)
+    for dataset_id in dataset_ids:
+        data_path = os.path.join(PROCESS_DATA_FOLDER, "{}%{}.csv".format(dataset_id, 'all'))
+        print(dataset_id, "{}%{}.csv".format(dataset_id, 'all'))
+        df = pd.read_csv(data_path).head(N)
+        columns = ['imnames', '{}%top1_id'.format(classification_id), '{}%top1_prob'.format(classification_id) ]
+        df = df[columns]
+        update_column = {}
+        for column in columns:
+            if column == 'imnames': continue
+            update_column[column] = "{}%{}".format(dataset_id, column)
+        df = df.rename(columns=update_column)
+        if all_df is None:
+            all_df = df
+        else:
+            all_df = all_df.merge(df, on='imnames')
+    all_df = all_df.merge(label_df, on='imnames')
+    all_dicts = all_df.to_dict('records')
+    update_records = []
+    def to_nest_attr(dict):
+        _dict = {}
+        for attr in dict:
+            if attr in ['imnames', 'label']:
+                _dict[attr] = dict[attr]
+            else:
+                l1, l2, l3 = attr.split('%')
+                if l1 not in _dict:
+                    _dict[l1] = {}
+                _dict[l1][l3] = dict[attr]
+        return _dict
+    for dict in all_dicts:
+        update_records.append(to_nest_attr(dict))
+
+    return update_records
+
+
+@app.route('/api/SR/jointlyAnalysis/', methods=['POST'])
+def jointly_analysis():
+    print(request.json)
+    dataset_ids = request.json['firstAttributes']
+    classification_id = request.json['classificationIds'][0]
+    print(dataset_ids, classification_id)
+    results = process_classification_results(dataset_ids=dataset_ids,
+                                             classification_id=classification_id)
+    return jsonify(results), 200, {"Content-Type": "application/json"}
+
+
+# jointlyAnalysis
 def load_model_performance():
     return ['vdsr', 'srResNet', 'hcflow']
     data_path = os.path.join(DATA_PATH, 'classification.csv')

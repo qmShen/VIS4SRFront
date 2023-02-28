@@ -6,7 +6,9 @@ const state = () => ({
   imageMetrics: null,
   metricNames: [],
   datasetIds: [],
-  classificationIds: []
+  classificationIds: [],
+  
+  imageClassification: []
 })
 
 // getters
@@ -46,12 +48,19 @@ const actions = {
       state.datasetIds = resp
     })
   },
-  loadClassificationIds({state, commit}){
+  loadClassificationIds({state}){
     let st = new Date();
-    dataService.loadClassificationIds({commit}, resp =>{
+    dataService.loadClassificationIds({}, resp =>{
       console.log("fetchRoute use time: ", new Date() - st)
       console.log('load datasetids name', resp)
       state.classificationIds = resp
+    })
+  },
+  jointlyAnalysis({state}, para){
+    let st = new Date();
+    dataService.jointlyAnalysis(para, resp =>{
+      console.log("fetchRoute use time: ", new Date() - st)
+      state.imageClassification = resp
     })
   }
 }

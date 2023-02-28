@@ -52,6 +52,15 @@ export function loadClassificationIds(param, callback) {
     })
 }
 
+export function jointlyAnalysis(param, callback) {
+  const url=`${TEST_URL_PREFIX}/jointlyAnalysis/`;
+  axios.post(url, param)
+    .then(response =>{
+      callback(response.data)
+    }, errResponse => {
+      console.log(errResponse)
+    })
+}
 //
 // export function loadImage(param, callback) {
 //   const url=`${TEST_URL_PREFIX}/loadImageWithId/`;

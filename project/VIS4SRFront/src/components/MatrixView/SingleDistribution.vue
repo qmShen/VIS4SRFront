@@ -14,7 +14,6 @@ export default {
     name: "SingleDistribution",
     props:['firstAttr', 'secondAttr', 'data', 'firstAttrColor', 'xScale'],
     mounted(){
-        console.log('cx', this.xMin, this.minV, this.xScale.domain(), this.xScale.range())
     },
     computed:{
         minV() {
