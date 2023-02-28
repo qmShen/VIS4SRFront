@@ -109,7 +109,7 @@
 <script>
 
 import HLComp from "@/components_new/Comparison/HLComp";
-import {uuidv4} from "@/lib/lib";
+import {uuidv4} from "@/libDev/lib";
 import * as d3 from 'd3'
 import ImInfo from "@/components_new/ImInfo";
 import FCom from "@/components_new/FCom";

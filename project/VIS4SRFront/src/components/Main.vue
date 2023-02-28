@@ -99,7 +99,7 @@ import {mapState} from "vuex";
 import * as d3 from "d3"
 import SliceCN from "@/components/MatrixView/SliceCN.vue";
 import SliceTitle from "@/components/MatrixView/SliceTitle";
-import {ColumnConfig, ColumnFactory} from "@/lib/ColumnGenerator.js"
+import {ColumnConfig, ColumnFactory} from "@/libDev/ColumnGenerator.js"
 
 
 export default {
